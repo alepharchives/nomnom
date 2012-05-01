@@ -1,0 +1,10 @@
+ebin
+db
+deps
+*~
+.DS_Store
+Mnesia.*
+erl_crash.dump
+*.beam
+rel/nomnom
+rel/nomnom.tar.bz2
