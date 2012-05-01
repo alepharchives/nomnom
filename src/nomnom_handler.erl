@@ -47,7 +47,6 @@ init({_Any, http}, Req, []) ->
 handle(Req, State) ->
     {Path, Req2} = cowboy_http_req:path(Req),
     {Method, Req3} = cowboy_http_req:method(Req2),
-    io:format("[~p] ~p~n", [Method, Path]),
     request(Method, Path, Req3, State).
 
 
