@@ -58,6 +58,7 @@ init([]) ->
     Port = get_env_default(port, 8080),
     Acceptors = get_env_default(acceptors, 2),
     Dispatch = [{'_', [{[<<"datasets">>], nomnom_handler, []},
+		       {[<<"datasets">>, <<"">>], nomnom_handler, []},
 		       ?STATIC(<<"datasets">>),
 		       ?STATIC(<<"js">>),
 		       ?STATIC(<<"css">>),
