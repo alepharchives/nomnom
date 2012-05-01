@@ -20,7 +20,7 @@
 -define(SERVER, ?MODULE). 
 
 -define(STATIC(Path), {[Path, '...'], cowboy_http_static,
-		       [{directory, {priv_dir, wiggle, [Path]}},
+		       [{directory, {priv_dir, nomnom, [Path]}},
 			{mimetypes, {fun mimetypes:path_to_mimes/2, default}}]}).
 
 -record(state, {}).
@@ -58,7 +58,6 @@ init([]) ->
     Port = get_env_default(port, 8080),
     Acceptors = get_env_default(acceptors, 2),
     Dispatch = [{'_', [{[<<"datasets">>], nomnom_handler, []},
-		       {[<<"datasets">>, <<"">>], nomnom_handler, []},
 		       ?STATIC(<<"datasets">>),
 		       ?STATIC(<<"js">>),
 		       ?STATIC(<<"css">>),

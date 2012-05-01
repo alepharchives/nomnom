@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+. config
+DATE=`date +%FT%H:%M:%S.0Z`
+UUID=`uuid`
+SIZE=
+SHA=
+
+ZONE=$1
+NAME=$2
+VERSION=$3
+
+ZVOL=zones/$ZONE-disk0
+zfs list | grep $ZVOL > /dev/null || exit 1
+
+SNAPSHOT=$ZVOL@$UUID
+zfs snapshot $SNAPSHOT || exit 2
+
+VOL_SIZE=`zfs get -pH volsize $ZVOL | awk '{ print $3 }'`
+VOL_SIZE=`expr $VOL_SIZE / 1048576`
+
+mkdir -p datasets/$UUID
+FILE=datasets/$UUID/$NAME-$VERSION.zvol.gz
+
+zfs send $SNAPSHOT | gzip > $FILE || exit 3
+
+SIZE=`ls -l $FILE  | awk '{ print $5 }'`
+
+SHA=`cksum -xsha1 $FILE | awk '{ print $1 }'`
+
+cat kvm.dsmanifest.tpl |\
+sed -e "s/CREATOR_UUID/$CREATOR_UUID/g" |\
+sed -e "s/VENDOR_UUID/$VENDOR_UUID/g" |\
+sed -e "s/UUID/$UUID/g" |\
+sed -e "s/CREATOR_NAME/$CREATOR_NAME/g" |\
+sed -e "s/VENDOR_NAME/$VENDOR_NAME/g" |\
+sed -e "s/CLOUD_NAME/$CLOUD_NAME/g" |\
+sed -e "s/NAME/$NAME/g" |\
+sed -e "s/VERSION/$VERSION/g" |\
+sed -e "s/VOL_SIZE/$VOL_SIZE/g" |\
+sed -e "s/SIZE/$SIZE/g" |\
+sed -e "s/SHA/$SHA/g" |\
+sed -e "s/DATE/$DATE/g" |\
+sed -e "s;SERVER;$SERVER;g" > datasets/$UUID/$UUID.dsmanifest
+
+echo Dataset $UUID created.
+zfs destroy $SNAPSHOT 

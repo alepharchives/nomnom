@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+FIRST=1
+INDEX_FILE=datasets/index.json
+for f in `ls datasets/*/*.dsmanifest`
+do
+  if [ $FIRST -eq 1 ]
+  then
+    echo "[" > $INDEX_FILE
+    FIRST=0
+  else
+    echo "," >> $INDEX_FILE
+  fi
+  cat $f >> $INDEX_FILE
+done
+echo "]" >> $INDEX_FILE
