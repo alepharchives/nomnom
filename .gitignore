@@ -6,5 +6,6 @@ deps
 Mnesia.*
 erl_crash.dump
 *.beam
+priv/datasets/*
 rel/nomnom
 rel/nomnom.tar.bz2
