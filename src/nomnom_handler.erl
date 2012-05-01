@@ -15,17 +15,14 @@
 
 
 -define(SERVICE_DESCRIPTION,     
-	[{<<"endpoints">> [<<"GET    /datasets">>,
-			   <<"GET    /datasets/:id">>,
-			   <<"GET    /datasets/:id/:path">>,
-			   <<"GET    /assets/:path">>,
-			   <<"PUT    /datasets/:uuid">>,
-			   <<"DELETE /datasets/:uuid">>,
-			   <<"GET    /">>,
-			   <<"GET    /ping">>
-			  ]},
-	 ,
-	 ]).
+	[{<<"endpoints">>, [<<"GET    /datasets">>,
+			    <<"GET    /datasets/:id">>,
+			    <<"GET    /datasets/:id/:path">>,
+			    <<"GET    /assets/:path">>,
+			    <<"PUT    /datasets/:uuid">>,
+			    <<"DELETE /datasets/:uuid">>,
+			    <<"GET    /">>,
+			    <<"GET    /ping">>]}]).
 
 
 %%%===================================================================
@@ -55,11 +52,9 @@ handle(Req, State) ->
 
 
 
-request('GET', []) ->
+request('GET', [], Req, State) ->
     reply_json(Req, [{<<"cloud_name">>, get_env_default(cloud_name, <<"lice">>)},
-		     {<<"version">>, get_env_default(dsapi_version, <<"2.3.0">>)}
-
-		    ]++?SERVICE_DESCRIPTION, State);
+		     {<<"version">>, get_env_default(dsapi_version, <<"2.3.0">>)}] ++ ?SERVICE_DESCRIPTION, State);
 
 request('GET', [<<"datasets">>], Req, State) ->
     {ok, File} = file:read_file("priv/datasets/index.json"),
