@@ -1,32 +1,49 @@
-OBJ=ebin/nomnom.app ebin/nomnom_app.beam ebin/nomnom_server.beam ebin/nomnom_sup.beam ebin/nomnom_handler.beam ebin/nomnom.beam
-DEPS=deps/jsx deps/cowboy
+APP_NAME=nomnom
+APP_DIR=apps/$(APP_NAME)
+OBJ=$(shell ls $(APP_DIR)/src/*.erl | sed -e 's/\.erl$$/.beam/' | sed -e 's;^$(APP_DIR)/src;$(APP_DIR)/ebin;g') $(shell ls $(APP_DIR)/src/*.app.src | sed -e 's/\.src$$//g' | sed -e 's;^$(APP_DIR)/src;$(APP_DIR)/ebin;g')
+DEPS=$(shell cat rebar.config  |sed -e 's/%.*//'| sed -e '/{\(\w\+\), [^,]\+, {\w\+, [^,]\+, {[^,]\+, [^}]\+}}},\?/!d' | sed -e 's;{\(\w\+\), [^,]\+, {\w\+, [^,]\+, {[^,]\+, [^}]\+}}},\?;deps/\1/rebar.config;')
 ERL=erl
-PA=ebin deps/*/ebin
+PA=$(shell pwd)/$(APP_DIR)/ebin
+ERL_LIBS=`pwd`/deps/
 REBAR=./rebar
 
-all: $(OBJ) $(DEPS)
+all: $(DEPS) $(OBJ)
 
-rel: all FORCE
-	-rm -r rel/nomnom
+rel: all remove_trash FORCE
+	-rm -r rel/$(APP_NAME)
 	cd rel; ../rebar generate
+echo:
+	echo $(DEPS)
 
 tar: rel
-	cd rel; tar jcvf nomnom.tar.bz2 nomnom
+	cd rel; tar jcvf $(APP_NAME).tar.bz2 $(APP_NAME)
 
 clean: FORCE
-	-rm -r *.beam ebin
-	-rm erl_crash.dump
-	-rm -r rel/nomnom
-	-rm rel/nomnom.tar.bz2
+	$(REBAR) clean
+	-rm *.beam erl_crash.dump
+	-rm -r rel/$(APP_NAME)
+	-rm rel/$(APP_NAME).tar.bz2
 
-ebin/%.app: src/%.app.src
+$(DEPS):
+	$(REBAR) get-deps
 	$(REBAR) compile
 
-ebin/%.beam: src/%.erl
+$(APP_DIR)/ebin/%.app: $(APP_DIR)/src/%.app.src
+	$(REBAR) compile
+
+$(APP_DIR)/ebin/%.beam: $(APP_DIR)/src/%.erl
 	$(REBAR) compile
 
 shell: all
-	$(ERL) -pa $(PA) -config standalone.config
-	-rm *.beam
+	ERL_LIBS="$(ERL_LIBS)" $(ERL) -pa $(PA) -config standalone -sname $(APP_NAME)
+	rm *.beam || true
+	[ -f erl_crash.dump ] && rm erl_crash.dump || true
 
 FORCE:
+
+manifest: rel
+	./tools/mkmanifest > manifest
+
+remove_trash:
+	-find . -name "*~" -exec rm {} \;.
+	-rm *.beam erl_crash.dump || true
