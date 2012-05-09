@@ -55,10 +55,14 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 init([]) ->
+    Datasets = get_env_default(datasets, {priv_dir, nomnom, [<<"datasets">>]}),
     Port = get_env_default(port, 8080),
     Acceptors = get_env_default(acceptors, 2),
     Dispatch = [{'_', [{[<<"datasets">>], nomnom_handler, []},
 		       {[], nomnom_handler, []},
+		       {[<<"datasets">>, '...'], cowboy_http_static,
+			[{directory, Datasets},
+			 {mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
 		       ?STATIC(<<"datasets">>),
 		       ?STATIC(<<"js">>),
 		       ?STATIC(<<"css">>),
