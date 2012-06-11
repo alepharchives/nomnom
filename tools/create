@@ -16,14 +16,40 @@ then
     echo "SERVER=\"$SERVER\"" >> config
 fi
 . config
+
 DATE=`date +%FT%H:%M:%S.0Z`
 UUID=`uuid`
 SIZE=
 SHA=
 
-ZONE=$1
-NAME=$2
-VERSION=$3
+
+if [ "x${1}x" == "xx" ]
+then
+    read -p "zone> " ZONE
+else
+    ZONE=$1
+fi
+
+if [ "x${2}x" == "xx" ]
+then
+    DFLT=`vmadm get $ZONE | json alias`
+    read -p "name[$DFLT]> " ZONE
+    if [ "x${ZONE}x" == xx ]
+    then
+	ZONE=$DFLT
+    fi
+else
+    NAME=$2
+fi
+
+if [ "x${3}x" == "xx" ]
+then
+    read -p "version> " VERSION
+else
+    VERSION=$3
+fi
+
+
 
 KIND=`vmadm get $ZONE | json brand`
 case $KIND in 
@@ -52,12 +78,14 @@ VOL_SIZE=`expr $VOL_SIZE / 1048576`
 mkdir -p datasets/$UUID
 FILE=datasets/$UUID/$NAME-$VERSION.zvol.gz
 
+echo "Creating zfs archive ($FILE)..."
 zfs send $SNAPSHOT | gzip > $FILE || exit 3
 
 SIZE=`ls -l $FILE  | awk '{ print $5 }'`
 
 SHA=`cksum -xsha1 $FILE | awk '{ print $1 }'`
 
+echo "Creating manifest (datasets/$UUID/$UUID.dsmanifest)..."
 cat $KIND.dsmanifest.tpl |\
 sed -e "s/KIND/$KIND/g" |\
 sed -e "s/DISKDRV/$DISKDRV/g" |\
