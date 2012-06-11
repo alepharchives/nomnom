@@ -1,4 +1,20 @@
 #!/usr/bin/env bash
+if [ ! -f config ]
+then
+    echo "No config file found, initializing."
+    echo "CREATOR_UUID\"`uuid`\"" >> config
+    echo "VENDOR_UUID=\"`uuid`\"" >> config
+    read -p "cloud name> " CLOUD_NAME
+    echo "CLOUD_NAME=\"$CLOUD_NAME\"" >> config
+    read -p "creator name[$CLOUD_NAME]> " CREATOR_NAME
+    if [ "x${CREATOR_NAME}x" == "xx" ]
+    then
+	CREATOR_NAME=$CLOUD_NAME
+    fi
+    echo "CREATOR_NAME=\"$CREATOR_NAME\"" >> config
+    read -p "server> http://" SERVER
+    echo "SERVER=\"$SERVER\"" >> config
+fi
 . config
 DATE=`date +%FT%H:%M:%S.0Z`
 UUID=`uuid`
