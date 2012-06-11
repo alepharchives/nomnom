@@ -1,13 +1,12 @@
 {
   "name": "NAME",
   "version": "VERSION",
-  "type": "zvol",
-  "cpu_type": "host",
+  "type": "zone-dataset",
   "description": "DESCRIPTION",
   "created_at": "DATE",
-  "updated_at": "2011-11-19T00:04:52.389Z",
-  "os": "linux",
-  "image_size": "VOL_SIZE",
+  "updated_at": "DATE",
+  "published_at": "DATE",
+  "os": "smartos",
   "files": [
     {
       "path": "NAME-VERSION.zvol.gz",
@@ -34,6 +33,5 @@
   "cloud_name": "CLOUD_NAME",
   "urn": "CLOUD_NAME:CREATOR_NAME:NAME:VERSION",
   "vendor_uuid": "VENDOR_UUID",
-  "published_at": "2011-11-19T00:04:52.389Z",
   "_url": "SERVER/datasets"
 }

@@ -9,7 +9,22 @@ ZONE=$1
 NAME=$2
 VERSION=$3
 
-ZVOL=zones/$ZONE-disk0
+KIND=`vmadm get $ZONE | json brand`
+case $KIND in 
+    kvm) 
+	ZVOL=`vmadm get $ZONE | json disks[0].zfs_filesystem`
+	DISKDRV=`vmadm get $ZONE | json disks[0].model`
+	NICDRV=`vmadm get $ZONE | json nics[0].model`
+	;;
+    joyent)
+	ZVOL=`vmadm get 21e0bc5d-af4e-4a44-8137-c7d50870dcbd | json zfs_filesystem`
+	;;
+    *)
+	echo "Only kvm and joyent are supported as brands, '$KIND' is unknown."
+	exit 1
+	;;
+esac
+
 zfs list | grep $ZVOL > /dev/null || exit 1
 
 SNAPSHOT=$ZVOL@$UUID
@@ -27,7 +42,10 @@ SIZE=`ls -l $FILE  | awk '{ print $5 }'`
 
 SHA=`cksum -xsha1 $FILE | awk '{ print $1 }'`
 
-cat kvm.dsmanifest.tpl |\
+cat $KIND.dsmanifest.tpl |\
+sed -e "s/KIND/$KIND/g" |\
+sed -e "s/DISKDRV/$DISKDRV/g" |\
+sed -e "s/NICDRV/$NICDRV/g" |\
 sed -e "s/CREATOR_UUID/$CREATOR_UUID/g" |\
 sed -e "s/VENDOR_UUID/$VENDOR_UUID/g" |\
 sed -e "s/UUID/$UUID/g" |\
