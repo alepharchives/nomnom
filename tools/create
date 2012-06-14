@@ -32,7 +32,7 @@ fi
 
 if [ "x${2}x" == "xx" ]
 then
-    DFLT=`vmadm get $ZONE | json alias`
+    DFLT=`vmadm get $ZONE | json alias | sed -e 's/[^a-zA-Z9-9.-]/_/g'`
     read -p "name[$DFLT]> " NAME
     if [ "x${NAME}x" == xx ]
     then
