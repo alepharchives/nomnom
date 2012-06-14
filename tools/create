@@ -2,7 +2,7 @@
 if [ ! -f config ]
 then
     echo "No config file found, initializing."
-    echo "CREATOR_UUID\"`uuid`\"" >> config
+    echo "CREATOR_UUID=\"`uuid`\"" >> config
     echo "VENDOR_UUID=\"`uuid`\"" >> config
     read -p "cloud name> " CLOUD_NAME
     echo "CLOUD_NAME=\"$CLOUD_NAME\"" >> config
@@ -33,10 +33,10 @@ fi
 if [ "x${2}x" == "xx" ]
 then
     DFLT=`vmadm get $ZONE | json alias`
-    read -p "name[$DFLT]> " ZONE
-    if [ "x${ZONE}x" == xx ]
+    read -p "name[$DFLT]> " NAME
+    if [ "x${NAME}x" == xx ]
     then
-	ZONE=$DFLT
+	NAME=$DFLT
     fi
 else
     NAME=$2
@@ -48,8 +48,6 @@ then
 else
     VERSION=$3
 fi
-
-
 
 KIND=`vmadm get $ZONE | json brand`
 case $KIND in 
